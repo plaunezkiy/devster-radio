@@ -17,13 +17,13 @@ const Refresh = () => {
   const { refresh_token } = router.query;
 
   useEffect(() => {
-    if (code) {
+    if (refresh_token) {
       fetch("api/refresh_token/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ refresh_token }),
       })
         .then((resp) => resp.json())
         .then((data) => {
@@ -31,7 +31,7 @@ const Refresh = () => {
           router.push("/demo");
         });
     }
-  }, [code]);
+  }, [refresh_token]);
 
   return (
     <div className="flex h-full items-center justify-center">
