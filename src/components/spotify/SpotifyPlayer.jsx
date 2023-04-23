@@ -29,6 +29,7 @@ const SpotifyPlayer = ({ setFullScreen }) => {
   let authData = {};
   if (typeof window !== "undefined") {
     authData = JSON.parse(localStorage.getItem("authData"));
+    console.log(authData);
   }
   // const [authData, _] = useState(
   //   JSON.parse(document.getElementById("spotify_data").textContent)
@@ -69,7 +70,7 @@ const SpotifyPlayer = ({ setFullScreen }) => {
       client_id: "1b529e30c45c436ab981c95bfa4c57f4",
       scope:
         "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming playlist-modify-private playlist-modify-public",
-      redirect_uri: `https://radio.dvstr.net/callback`,
+      redirect_uri: 'https://radio.dvstr.net/callback',
     };
     const query = Object.keys(params)
       .map((key) => key + "=" + params[key])

@@ -1,5 +1,8 @@
 import { useState, useCallback } from "react";
 
+const refreshUrl = "https://radio.dvstr.net/refresh/";
+// const refreshUrl = "http://localhost:3000/refresh";
+
 export const useRefreshTokenFetch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,7 +17,8 @@ export const useRefreshTokenFetch = () => {
         },
       });
       if (res.status === 401) {
-        window.location.href = `https://radio.dvstr.net/refresh?refresh_token=${authData.refresh_token}/`;
+        window.location.href =
+          refreshUrl + `?refresh_token=${authData.refresh_token}`;
       }
       const data = await res.json();
       applyData(data);
@@ -37,7 +41,8 @@ export const useRefreshTokenFetch = () => {
         body: body,
       });
       if (res.status === 401) {
-        window.location.href = `https://radio.dvstr.net/refresh?refresh_token=${authData.refresh_token}/`;
+        window.location.href =
+          refreshUrl + `?refresh_token=${authData.refresh_token}`;
       }
       const data = await res.json();
       applyData(data);
@@ -60,7 +65,8 @@ export const useRefreshTokenFetch = () => {
         body: body,
       });
       if (res.status === 401) {
-        window.location.href = `https://radio.dvstr.net/refresh?refresh_token=${authData.refresh_token}/`;
+        window.location.href =
+          refreshUrl + `?refresh_token=${authData.refresh_token}`;
       }
       const data = await res.json();
       applyData(data);

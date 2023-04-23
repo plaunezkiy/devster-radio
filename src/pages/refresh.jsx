@@ -2,22 +2,13 @@ import { VscLoading } from "react-icons/vsc";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-// response = post('https://accounts.spotify.com/api/token', data={
-//         'grant_type': 'authorization_code',
-//         'code': code,
-//         # 'redirect_uri': os.getenv('SPOTIFY_REDIRECT_URI'),
-//         'redirect_uri': f'http://{request.get_host()}/apps/radio/callback',
-//         # 'redirect_uri': 'http://172.21.4.112:8000/apps/radio/callback',
-//         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
-//         'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET'),
-//     })
-
 const Refresh = () => {
   const router = useRouter();
   const { refresh_token } = router.query;
 
   useEffect(() => {
     if (refresh_token) {
+      //   console.log(refresh_token);
       fetch("api/refresh_token/", {
         method: "POST",
         headers: {
@@ -25,8 +16,16 @@ const Refresh = () => {
         },
         body: JSON.stringify({ refresh_token }),
       })
-        .then((resp) => resp.json())
+        .then((resp) => {
+          if (resp.ok) {
+            return resp.json();
+          }
+          localStorage.removeItem("authData");
+        })
         .then((data) => {
+          if (!data) {
+            return;
+          }
           localStorage.setItem("authData", JSON.stringify(data));
           router.push("/demo");
         });

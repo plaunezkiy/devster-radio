@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     res.status(405);
     return;
   }
-  const { code } = req.body;
+  const { refresh_token } = req.body;
   await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
