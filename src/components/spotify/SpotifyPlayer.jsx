@@ -65,18 +65,22 @@ const SpotifyPlayer = ({ setFullScreen }) => {
   const spotifyLogin = () => {
     // https://api.spotify.com/authorize
     // if (authData) return;
-    const params = {
-      response_type: "code",
-      client_id: "1b529e30c45c436ab981c95bfa4c57f4",
-      scope:
-        "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming playlist-modify-private playlist-modify-public",
-      redirect_uri: 'https://radio.dvstr.net/callback',
-    };
-    const query = Object.keys(params)
-      .map((key) => key + "=" + params[key])
-      .join("&");
-    return (window.location.href =
-      "https://accounts.spotify.com/authorize?" + query);
+    fetch("api/spotify_creds")
+      .then((resp) => resp.json())
+      .then(({ client_id, redirect_uri }) => {
+        const params = {
+          response_type: "code",
+          client_id,
+          scope:
+            "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming playlist-modify-private playlist-modify-public",
+          redirect_uri,
+        };
+        const query = Object.keys(params)
+          .map((key) => key + "=" + params[key])
+          .join("&");
+        return (window.location.href =
+          "https://accounts.spotify.com/authorize?" + query);
+      });
   };
 
   const getPlayerState = async () => {
