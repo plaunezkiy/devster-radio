@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 
-// const refreshUrl = "https://radio.dvstr.net/refresh";
-const refreshUrl = "http://localhost:3000/refresh";
+const refreshUrl = "https://radio.dvstr.net/refresh";
+// const refreshUrl = "http://localhost:3000/refresh";
 
 export const useRefreshTokenFetch = () => {
   const [loading, setLoading] = useState(false);
