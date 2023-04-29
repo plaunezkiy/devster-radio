@@ -1,13 +1,12 @@
 import { useState, useEffect, useContext } from "react";
 import {
   BsArrowsFullscreen,
-  BsHeart,
-  BsHeartFill,
   BsSpotify,
   BsMusicNoteList,
+  BsHeart,
+  BsHeartFill,
 } from "react-icons/bs";
 // import { MdPiano } from "react-icons/md";
-
 import {
   SongFeatures,
   FeaturesHorizontal,
@@ -29,7 +28,6 @@ const SpotifyPlayer = ({ setFullScreen }) => {
   let authData = {};
   if (typeof window !== "undefined") {
     authData = JSON.parse(localStorage.getItem("authData"));
-    console.log(authData);
   }
   // const [authData, _] = useState(
   //   JSON.parse(document.getElementById("spotify_data").textContent)
@@ -39,6 +37,7 @@ const SpotifyPlayer = ({ setFullScreen }) => {
   const [activeSongData, setActiveSongData] = useState(
     (playerData?.progress_ms / playerData?.item.duration_ms) * 100
   );
+  const [activeSongLiked, setActiveSongLiked] = useState(false);
   const [activeSongAnalysis, setActiveSongAnalysis] = useState();
   const [currentSegment, setCurrentSegment] = useState();
 
@@ -60,7 +59,8 @@ const SpotifyPlayer = ({ setFullScreen }) => {
     valence: { active: false, value: 0 },
   });
 
-  const { loading, error, fetchData, putData } = useRefreshTokenFetch();
+  const { loading, error, fetchData, putData, deleteData } =
+    useRefreshTokenFetch();
 
   const spotifyLogin = () => {
     // https://api.spotify.com/authorize
@@ -72,7 +72,7 @@ const SpotifyPlayer = ({ setFullScreen }) => {
           response_type: "code",
           client_id,
           scope:
-            "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming playlist-modify-private playlist-modify-public",
+            "user-read-playback-state user-modify-playback-state user-read-currently-playing user-library-read user-library-modify streaming playlist-modify-private playlist-modify-public",
           redirect_uri,
         };
         const query = Object.keys(params)
@@ -96,6 +96,11 @@ const SpotifyPlayer = ({ setFullScreen }) => {
       setPlayerData(data);
       setCurrentTrack(data.item);
       fetchData(
+        "https://api.spotify.com/v1/me/tracks/contains?ids=" + data.item.id,
+        authData,
+        (data) => setActiveSongLiked(data[0])
+      );
+      fetchData(
         "https://api.spotify.com/v1/audio-features/" + data.item.id,
         authData,
         setActiveSongData
@@ -106,6 +111,29 @@ const SpotifyPlayer = ({ setFullScreen }) => {
         setActiveSongAnalysis
       );
     });
+  };
+
+  const handleActiveSong = () => {
+    if (!playerData || !authData) return;
+    if (activeSongLiked) {
+      deleteData(
+        "https://api.spotify.com/v1/me/tracks/",
+        authData,
+        JSON.stringify({
+          ids: [playerData.item.id],
+        }),
+        () => alert("successfully deleted")
+      );
+    } else {
+      putData(
+        "https://api.spotify.com/v1/me/tracks/",
+        authData,
+        JSON.stringify({
+          ids: [playerData.item.id],
+        }),
+        () => alert("successfully added")
+      );
+    }
   };
 
   const updateSegment = (time_position) => {
@@ -190,7 +218,7 @@ const SpotifyPlayer = ({ setFullScreen }) => {
               To use the player, you need to log in with your Spotify account
             </p>
             <p className="text-sm mb-2 text-mute">
-              Devster does not store your access information
+              Devster does not store nor has access to your credentials
             </p>
             <div className="flex gap-4 justify-center">
               <button
@@ -219,18 +247,28 @@ const SpotifyPlayer = ({ setFullScreen }) => {
         <div className="w-full flex flex-col md:flex-row gap-6 justify-center">
           {/* <Playlists /> */}
           {authData && (
-            <div className="flex flex-col gap-6 md:justify-start md:items-center">
+            <div className="flex flex-col gap-6 justify-center md:justify-start items-center">
               {activeSongData && (
                 <FeaturesHorizontal
                   features={activeSongData}
                   setFeatures={setRecFeatures}
                 />
               )}
+              <p
+                className="
+                  order-first md:order-last
+                  border border-1 w-full
+                  border-slate-700 dark:border-gray-200
+                  px-4 py-2 rounded-lg text-center
+                "
+              >
+                v 0.1.2
+              </p>
               <button
                 onClick={spotifyLogin}
                 className="
                 order-first md:order-last
-                border border-1 
+                border border-1 w-full
                 border-slate-700 dark:border-gray-200
                 px-4 py-2 rounded-lg 
                 hover:text-white dark:hover:text-slate-800
@@ -248,12 +286,12 @@ const SpotifyPlayer = ({ setFullScreen }) => {
               <div className="w-full md:w-[700px] h-full bg-white dark:bg-zinc-700 rounded-lg shadow-lg overflow-hidden border border-1">
                 <div className="relative h-72 md:h-64 w-full flex flex-col md:flex-row overflow-visible">
                   {/* progress bar */}
-                  <div className="absolute bottom-0 h-1 w-full bg-gray-200 z-10">
+                  <div className="absolute bottom-0 h-1 w-full bg-gray-200 z-10 outline outline-1 outline-black">
                     <div
-                      className="h-full bg-blue-500 flex items-center justify-end"
+                      className="h-full bg-blue-600 flex items-center justify-end outline outline-1 outline-black"
                       style={{ width: `${songProgress}%` }}
                     >
-                      <div className="rounded-full w-3 h-3 bg-white shadow"></div>
+                      {/* <div className="rounded-full w-3 h-3 bg-white shadow"></div> */}
                     </div>
                   </div>
                   {/* /progress bar/ */}
@@ -263,7 +301,7 @@ const SpotifyPlayer = ({ setFullScreen }) => {
                       src={
                         playerData
                           ? playerData.item.album.images[0].url
-                          : "https://images.unsplash.com/photo-1500099817043-86d46000d58f?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=800&h=250&q=80"
+                          : "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228"
                       }
                       // https://api.spotify.com/authorize
                       // if (authData) return;
@@ -280,10 +318,20 @@ const SpotifyPlayer = ({ setFullScreen }) => {
                         className="w-8 h-8 p-1 text-blue-500 hover:text-white hover:bg-blue-500 rounded duration-150 cursor-pointer"
                         onClick={() => setFullScreen(true)}
                       /> */}
-
+                      {activeSongLiked ? (
+                        <BsHeartFill
+                          className="w-9 h-9 p-1 text-blue-500 hover:text-white hover:bg-blue-500 rounded duration-150 cursor-pointer"
+                          onClick={handleActiveSong}
+                        />
+                      ) : (
+                        <BsHeart
+                          className="w-9 h-9 p-1 text-blue-500 hover:text-white hover:bg-blue-500 rounded duration-150 cursor-pointer"
+                          onClick={handleActiveSong}
+                        />
+                      )}
                       <AvailableDevices />
                       <BsArrowsFullscreen
-                        className="w-8 h-8 p-1 text-blue-500 hover:text-white hover:bg-blue-500 rounded duration-150 cursor-pointer"
+                        className="w-9 h-9 p-1 text-blue-500 hover:text-white hover:bg-blue-500 rounded duration-150 cursor-pointer"
                         onClick={() => setFullScreen(true)}
                       />
                     </div>

@@ -3,6 +3,7 @@ import SpotifyAuthContext from "@/utils/SpotifyAuthContext";
 import { useRefreshTokenFetch } from "@/hooks/useFetch";
 import useClickOutside from "@/hooks/useClickOutside";
 import { BsSpeaker, BsCheck } from "react-icons/bs";
+import { RiSpeakerLine, RiSpeakerFill } from "react-icons/ri";
 // import { VideoIcon, CheckIcon } from "@radix-ui/react-icons";
 
 const AvailableDevices = () => {

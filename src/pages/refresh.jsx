@@ -7,6 +7,11 @@ const Refresh = () => {
   const { refresh_token } = router.query;
 
   useEffect(() => {
+    if (refresh_token === 'undefined') {
+      localStorage.removeItem("authData");
+      router.push("/demo");
+      return;
+    }
     if (refresh_token) {
       //   console.log(refresh_token);
       fetch("api/refresh_token/", {
@@ -21,6 +26,7 @@ const Refresh = () => {
             return resp.json();
           }
           localStorage.removeItem("authData");
+          return;
         })
         .then((data) => {
           if (!data) {

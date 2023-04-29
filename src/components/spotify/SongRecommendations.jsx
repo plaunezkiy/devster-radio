@@ -6,7 +6,7 @@
 //   ReloadIcon,
 // } from "@radix-ui/react-icons";
 import { VscLoading } from "react-icons/vsc";
-import { BsPlus } from "react-icons/bs";
+import { BsPlus, BsCheck } from "react-icons/bs";
 import { useContext, useState } from "react";
 import { msToMinsSecs } from "@/utils/converter";
 import SpotifyAuthContext from "@/utils/SpotifyAuthContext";
@@ -14,30 +14,33 @@ import { useRefreshTokenFetch } from "@/hooks/useFetch";
 import useAudio from "@/hooks/useAudio";
 
 const TrackItem = ({ track }) => {
+  const [added, setAdded] = useState(false);
   const authData = useContext(SpotifyAuthContext);
   const { loading, error, fetchData, postData, putData } =
     useRefreshTokenFetch();
   const addToQueue = (track_uri) => {
     postData(
       `https://api.spotify.com/v1/me/player/queue?uri=${track_uri}`,
-      authData
+      authData,
+      {}
     );
+    setAdded(true);
   };
+
+  const statusIcon = added ? (
+    <BsCheck className="w-5 h-5 group-hover/button:text-white" />
+  ) : (
+    <BsPlus className="w-5 h-5 group-hover/button:text-white" />
+  );
 
   return (
     <div className="h-fit p-2.5 pl-[2rem] relative flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-zinc-600">
       <button
         // onClick={() => (playing ? audio.pause() : audio.play())}
         className="absolute left-0 w-10 h-full hover:bg-green-500 group focus:outline-none group/button divide-x flex justify-center items-center"
+        onClick={() => addToQueue(track.uri)}
       >
-        {loading ? (
-          <VscLoading className="w-5 h-5 animate-spin" />
-        ) : (
-          <BsPlus
-            className="w-5 h-5 group-hover/button:text-white"
-            onClick={() => addToQueue(track.uri)}
-          />
-        )}
+        {loading ? <VscLoading className="w-5 h-5 animate-spin" /> : statusIcon}
       </button>
       <div className="flex-1 text-sm">
         {track.artists[0].name} - {track.name}
@@ -108,15 +111,17 @@ const SongRecommendations = ({ playerData, recFeatures }) => {
   return (
     <div className="w-full divide-y divide-black">
       <div className="flex px-2 justify-between bg-gray-100 dark:bg-zinc-600">
-        <p className="my-2 text-center font-semibold">Recommendations:</p>
+        <p className="my-2 text-center font-semibold select-none">
+          Recommendations:
+        </p>
         <div className="buttons flex gap-2 items-center">
           <button
-            className="font-semibold py-1 px-2 border border-blue-500 rounded text-slate-700 dark:text-white hover:text-white hover:bg-blue-500 duration-150"
+            className="font-semibold py-1 px-3 border border-blue-500 rounded text-slate-700 dark:text-white hover:text-white hover:bg-blue-500 duration-150"
             onClick={getRecommendations}
           >
-            Get
+            Reload
           </button>
-          <button
+          {/* <button
             className="font-semibold py-1 px-2 border border-blue-500 rounded text-slate-700 dark:text-white hover:text-white hover:bg-blue-500 duration-150"
             onClick={() =>
               setRecommendations({
@@ -126,7 +131,7 @@ const SongRecommendations = ({ playerData, recFeatures }) => {
             }
           >
             Clear
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="flex flex-col text-xs sm:text-base divide-y divide-black cursor-default">

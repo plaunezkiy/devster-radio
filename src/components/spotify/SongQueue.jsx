@@ -31,7 +31,7 @@ const AddToPlaylist = ({ track }) => {
     useRefreshTokenFetch();
   const authData = useContext(SpotifyAuthContext);
   const playlists = useContext(SpotifyPlaylistsContext);
-  const [filteredPlaylists, setFilteredPlaylsits] = useState();
+  const [filteredPlaylists, setFilteredPlaylsits] = useState(playlists.selected);
 
   // const playlists = [
   //   {
@@ -117,14 +117,14 @@ const AddToPlaylist = ({ track }) => {
     >
       <div
         className="w-48 absolute bottom-10 right-0 px-4 py-2 z-20
-                      border rounded bg-gray-200 text-slate-800
+                      border border-black border-1 rounded bg-gray-300 text-slate-800
                       flex flex-col items-center gap-1"
       >
         <div className=""></div>
         <p className="text-sm font-medium">Add to playlist</p>
         <input
           type="text"
-          className="w-44 rounded h-6 text-sm font-normal"
+          className="w-44 rounded h-6 px-2 text-sm font-normal bg-white"
           onChange={(e) => filterPlaylists(e.target.value)}
         />
         <div className="mt-2 flex gap-2 justify-around">
@@ -198,7 +198,7 @@ const SongQueue = ({ trackQueue, playerData }) => {
     <div className="w-full">
       <div className="flex px-2 justify-between bg-gray-100 dark:bg-zinc-600 border-b border-black">
         <p
-          className="my-2 text-center font-semibold cursor-pointer"
+          className="my-2 text-center font-semibold select-none"
           // onClick={() => setShow((s) => !s)}
         >
           Song queue:

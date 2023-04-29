@@ -77,5 +77,29 @@ export const useRefreshTokenFetch = () => {
     setLoading(false);
   }, []);
 
-  return { loading, error, fetchData, putData, postData };
+  const deleteData = useCallback(async (url, authData, body, applyData) => {
+    setLoading(true);
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + authData.access_token,
+        },
+        body: body,
+      });
+      if (res.status === 401) {
+        window.location.href =
+          refreshUrl + `?refresh_token=${authData.refresh_token}`;
+      }
+      const data = await res.json();
+      applyData(data);
+    } catch (error) {
+      setError(error.message);
+      console.log(error);
+    }
+    setLoading(false);
+  }, []);
+
+  return { loading, error, fetchData, putData, postData, deleteData };
 };
